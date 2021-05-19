@@ -88,6 +88,10 @@ def set_interval(update, context):
     )
 
 
+def show_interval(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text=str(INTERVAL))
+
+
 def stop(update, context):
     context.job_queue.stop()
 
@@ -205,6 +209,7 @@ def main():
 
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("si", set_interval))
+    dispatcher.add_handler(CommandHandler("showi", show_interval))
     dispatcher.add_handler(CommandHandler("stop", stop))
     dispatcher.add_handler(CommandHandler("gp", get_price))
     dispatcher.add_handler(CommandHandler("ats", add_symbol_to_scheduler))
