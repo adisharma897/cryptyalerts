@@ -3,6 +3,7 @@ import json
 
 import dateutil.parser
 from dateutil import tz
+import os
 
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
@@ -143,8 +144,15 @@ def main():
     with open("symbol_data.json", "w") as f:
         json.dump([], f)
 
+    PORT = int(os.environ.get("PORT", "8443"))
+    APP_NAME = "botmanager897"
+
     TOKEN = "1833129188:AAHj951iRskGQ8NjnP426GORf7Vi4sIqpDs"
     updater = Updater(token=TOKEN, use_context=True)
+
+    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
+    updater.bot.set_webhook(APP_NAME + TOKEN)
+
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
@@ -154,7 +162,7 @@ def main():
     dispatcher.add_handler(CommandHandler("ss", show_scheduler_symbols))
     dispatcher.add_handler(CommandHandler("rfs", remove_symbol_from_scheduler))
 
-    updater.start_polling()
+    updater.idle()
 
 
 if __name__ == "__main__":
