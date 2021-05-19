@@ -150,8 +150,12 @@ def main():
     TOKEN = "1833129188:AAHj951iRskGQ8NjnP426GORf7Vi4sIqpDs"
     updater = Updater(token=TOKEN, use_context=True)
 
-    updater.start_webhook(listen="0.0.0.0", port=PORT, url_path=TOKEN)
-    updater.bot.set_webhook(APP_NAME + TOKEN)
+    updater.start_webhook(
+        listen="0.0.0.0",
+        port=PORT,
+        url_path=TOKEN,
+        webhook_url=f"https://{APP_NAME}.herokuapp.com/{TOKEN}",
+    )
 
     dispatcher = updater.dispatcher
 
