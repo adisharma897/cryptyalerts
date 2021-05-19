@@ -6,12 +6,13 @@ from dateutil import tz
 import os
 
 from telegram.ext import Updater, CommandHandler, CallbackContext
+from decimal import *
 
 INTERVAL = 900
 
 
 def controller(context: CallbackContext):
-    with open("symbol_data.json") as f:
+    with open("symbol_data_.json") as f:
         SYMBOLS = json.load(f)
 
     data = get_current_price(SYMBOLS)
@@ -109,19 +110,19 @@ def add_symbol_to_scheduler(update, context):
     text = update.message.text
     symbol = text.replace("/ats", "").strip()
 
-    with open("symbol_data.json") as f:
+    with open("symbol_data_.json") as f:
         SYMBOLS = json.load(f)
 
     SYMBOLS.append(symbol)
 
-    with open("symbol_data.json", "w") as f:
+    with open("symbol_data_.json", "w") as f:
         json.dump(SYMBOLS, f)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text="Success")
 
 
 def show_scheduler_symbols(update, context):
-    with open("symbol_data.json") as f:
+    with open("symbol_data_.json") as f:
         SYMBOLS = json.load(f)
 
     text = ""
@@ -137,7 +138,7 @@ def remove_symbol_from_scheduler(update, context):
     text = update.message.text
     SYMBOL = text.replace("/rfs", "").strip()
 
-    with open("symbol_data.json") as f:
+    with open("symbol_data_.json") as f:
         SYMBOLS = json.load(f)
 
     if len(SYMBOLS) == 0:
@@ -145,11 +146,45 @@ def remove_symbol_from_scheduler(update, context):
     else:
         SYMBOLS.remove(SYMBOL)
 
-        with open("symbol_data.json", "w") as f:
+        with open("symbol_data_.json", "w") as f:
             json.dump(SYMBOLS, f)
         text = "Success"
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=text)
+
+
+def add_to_portfolio(update, context):
+    symbol = ""
+    total_amount_paid = Decimal(0)
+    bought_price = Decimal(0)
+
+    symbol = symbol.upper()
+    order = {
+        "total_amount_paid": total_amount_paid,
+        "total_amount_bought": total_amount_paid / bought_price,
+    }
+
+    {"BTC": {"total_amount_paid": 10, "total_amount_bought": 10}}
+    # average_price = total_amount_paid/total_amount_bought
+
+    with open("portfolio.json") as f:
+        portfolio_data = json.load(f)
+
+    if symbol in portfolio_data.keys():
+        asset = portfolio_data[symbol]
+        updated_asset = {}
+
+        for key in asset.keys():
+            updated_asset[key] = str(Decimal(asset[key]) + order[key])
+
+        portfolio_data[symbol] = updated_asset
+    else:
+        for key in order.keys():
+            order[key] = str(order[key])
+        portfolio_data[symbol] = order
+
+    with open("portfolio.json", "w") as f:
+        json.dump(portfolio_data, f)
 
 
 def main():
