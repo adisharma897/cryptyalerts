@@ -7,6 +7,8 @@ import os
 
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
+INTERVAL = 900
+
 
 def controller(context: CallbackContext):
     with open("symbol_data.json") as f:
@@ -71,7 +73,17 @@ def send_message(context, text):
 
 def start(update, context):
     context.job_queue.run_repeating(
-        controller, interval=900, first=0, context=update.message.chat_id
+        controller, interval=INTERVAL, first=0, context=update.message.chat_id
+    )
+
+
+def set_interval(update, context):
+    text = update.message.text
+    INTERVAL = int(text.replace("/si", "").strip())
+
+    context.job_queue.stop()
+    context.job_queue.run_repeating(
+        controller, interval=INTERVAL, first=0, context=update.message.chat_id
     )
 
 
@@ -141,9 +153,6 @@ def remove_symbol_from_scheduler(update, context):
 
 
 def main():
-    with open("symbol_data.json", "w") as f:
-        json.dump([], f)
-
     PORT = int(os.environ.get("PORT", "8443"))
     APP_NAME = "botmanager897"
 
@@ -160,6 +169,7 @@ def main():
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("si", set_interval))
     dispatcher.add_handler(CommandHandler("stop", stop))
     dispatcher.add_handler(CommandHandler("gp", get_price))
     dispatcher.add_handler(CommandHandler("ats", add_symbol_to_scheduler))
