@@ -73,8 +73,11 @@ def send_message(context, text):
 
 
 def start(update, context):
+    text = update.message.text
+    interval = int(text.replace("/start", "").strip())
+
     context.job_queue.run_repeating(
-        controller, interval=INTERVAL, first=0, context=update.message.chat_id
+        controller, interval=interval, first=0, context=update.message.chat_id
     )
 
 
